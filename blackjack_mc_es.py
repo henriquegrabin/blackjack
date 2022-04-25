@@ -5,16 +5,18 @@ from typing import List, Tuple
 POSSIBLE_CARDS = ['A', '2', '3', '4', '5', '6', '7', '8',
 				  '9', '10', 'J', 'Q', 'K']
 
+LEARNING_EPISODES = 5_000_000
+
 def draw_card():
     return random.choice(POSSIBLE_CARDS)
 
-def gen_exploring_starts_state():
+def gen_exploring_starts_state() -> Tuple[int, int, int]:
     player_hand = random.randrange(12, 22)
     player_has_usable_ace = random.randrange(2)
     dealer_hand = random.randrange(2, 12)
     return player_hand, player_has_usable_ace, dealer_hand
 
-def gen_random_action():
+def gen_random_action() -> int:
     return random.randint(0,1)
 
 class Episode():
@@ -28,17 +30,18 @@ class Episode():
         self.dealer_cards = []
         self.player_policy = player_policy
         self.ace_override = False
+        self.exploring_starts = exploring_starts
 
         if exploring_starts:
             player_hand, player_has_usable_ace, dealer_hand = gen_exploring_starts_state()
             self.player_cards.append(player_hand)
-            self.ace_override = player_has_usable_ace
+            self.ace_override = player_has_usable_ace # there's an ace in the ES hand
             self.dealer_cards.append(dealer_hand)
         else:
             self.player_cards.append(draw_card())
             self.player_cards.append(draw_card())
             self.player_count = self.count_hand(self.player_cards, self.ace_override)
-            while self.player_count < 12:
+            while self.player_count < 12: # it's non sensical to stay below 12
                 self.player_cards.append(draw_card())
                 self.player_count = self.count_hand(self.player_cards, self.ace_override)
 
@@ -69,58 +72,40 @@ class Episode():
         state = (self.player_count, self.player_has_ace, self.dealer_count)
         policy_state = self.transform_state_to_policy_state(state)
         
-        # while self.player_count <= 21:
-        #     action = gen_random_action()
-        #     state_action_pair = (*state, action)
-        #     self.steps.append(state_action_pair)
-        #     if action == 1:
-        #         self.player_cards.append(draw_card())
-        #         self.player_count = self.count_hand(self.player_cards)
-        #         self.player_has_ace = self.hand_has_ace(self.player_cards, self.ace_override)
-        #         state = (self.player_count, self.player_has_ace, self.dealer_count)
-        #         policy_state = self.transform_state_to_policy_state(state)
-        #     else:
-        #         break
-        random_action = gen_random_action()
-        state_action_pair = (*state, random_action)
-        self.steps.append(state_action_pair)
-        if random_action:
-            self.player_cards.append(draw_card())
-            self.player_count = self.count_hand(self.player_cards, self.ace_override)
-            self.player_has_ace = self.hand_has_ace(self.player_cards, self.ace_override)
-            state = (self.player_count, self.player_has_ace, self.dealer_count)
-            policy_state = self.transform_state_to_policy_state(state)
-        else:
-            return
-
-        if self.player_count > 21:
-            return
-
-
-        # better way to do it
-        # while self.player_count <= 21:
-        #     if ...
-        #     else...
-        while self.player_policy[policy_state] == 1:
-            state_action_pair = (*state, 1) # hit
+        if self.exploring_starts: # the first action is random
+            random_action = gen_random_action()
+            state_action_pair = (*state, random_action)
             self.steps.append(state_action_pair)
-            self.player_cards.append(draw_card())
-            self.player_count = self.count_hand(self.player_cards, self.ace_override)
-            self.player_has_ace = self.hand_has_ace(self.player_cards, self.ace_override)
-            state = (self.player_count, self.player_has_ace, self.dealer_count)
-            policy_state = self.transform_state_to_policy_state(state)
-            if self.player_count > 21:
+            if random_action:
+                self.player_cards.append(draw_card())
+                self.player_count = self.count_hand(self.player_cards, self.ace_override)
+                self.player_has_ace = self.hand_has_ace(self.player_cards, self.ace_override)
+                state = (self.player_count, self.player_has_ace, self.dealer_count)
+                policy_state = self.transform_state_to_policy_state(state)
+            else:
+                return # if action == 0 we have already added to self.steps before the if
+
+        while self.player_count <= 21:
+            if self.player_policy[policy_state] == 1: 
+                state_action_pair = (*state, 1) # hit
+                self.steps.append(state_action_pair)
+                self.player_cards.append(draw_card())
+                self.player_count = self.count_hand(self.player_cards, self.ace_override)
+                self.player_has_ace = self.hand_has_ace(self.player_cards, self.ace_override)
+                state = (self.player_count, self.player_has_ace, self.dealer_count)
+                policy_state = self.transform_state_to_policy_state(state)
+            else:
+                state_action_pair = (*state, 0) # stay
+                self.steps.append(state_action_pair)
                 break
 
-        if self.player_count <= 21:
-            state_action_pair = (*state, 0) # stay
-            self.steps.append(state_action_pair)
-
-    def transform_state_to_policy_state(self, state: Tuple[int, int, int]):
+    def transform_state_to_policy_state(self, state: Tuple[int, int, int]) -> Tuple[int, int, int]:
         return state[0] - 12, state[1], state[2] - 2
 
     def dealer_play(self):
-        while self.dealer_count < 17 or (self.player_count <= 21 and self.player_count > self.dealer_count):
+        if self.player_count > 21: # player have busted, dealer is not forced to proceed
+            return
+        while self.dealer_count < 17:# or (self.player_count <= 21 and self.player_count > self.dealer_count):
             self.dealer_cards.append(draw_card())
             self.dealer_count = self.count_hand(self.dealer_cards, self.ace_override)
 
@@ -182,7 +167,7 @@ if __name__ == '__main__':
     count = np.zeros(shape = (10, 2, 10, 2))
     policy = np.random.randint(low = 0, high = 2, size = (10, 2, 10))
 
-    for i in range(500_000):
+    for i in range(LEARNING_EPISODES):
         episode = Episode(player_policy = policy, exploring_starts = True, verbose = False)
         previous_states = set()
         result = episode.result

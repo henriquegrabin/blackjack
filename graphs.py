@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-
 def plot_count(count: np.array):
     # Count
     fig, ((ax11, ax12), (ax21, ax22)) = plt.subplots(nrows= 2, ncols= 2, figsize = (9,9))
@@ -13,7 +12,7 @@ def plot_count(count: np.array):
             return str(round(number / 1_000, 1)) + 'k'
         else:
             return str(number)
-    def plot_heatmap(ax, count: np.array, usable_ace: bool, stay_hit: bool):
+    def plot_heatmap(ax: plt.Axes, count: np.array, usable_ace: bool, stay_hit: bool):
         ace_string = 'Usable ace' if usable_ace else 'No usable ace'
         stay_hit_string = 'Hit' if stay_hit else 'Stay'
         usable_ace = int(usable_ace)
