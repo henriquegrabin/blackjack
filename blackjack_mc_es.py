@@ -178,10 +178,8 @@ class Episode():
 
 if __name__ == '__main__':
     q = np.random.uniform(-0.5, 0.5, size=(10, 2, 10, 2))
-    #returns = np.random.uniform(-1, 1, size=(10, 2, 10, 2))
     returns = np.zeros(shape = (10, 2, 10, 2))
     count = np.zeros(shape = (10, 2, 10, 2))
-    #count = np.ones(shape = (10, 2, 10, 2))
     policy = np.random.randint(low = 0, high = 2, size = (10, 2, 10))
 
     for i in range(500_000):
@@ -200,90 +198,7 @@ if __name__ == '__main__':
             q[state_action_pair] = returns[state_action_pair] / count[state_action_pair]
             policy[state] = np.argmax(q[player_sum - 12, has_ace, dealer_sum - 2, :])
 
-    import matplotlib.pyplot as plt
-    fig, (ax1, ax2) = plt.subplots(nrows = 1, ncols = 2)
-    ax1.imshow(policy[:,0,:])
-    ax1.set_xlabel('Dealer')
-    ax1.set_ylabel('Player')
-    ax1.set_xticks(np.arange(len(policy[:,0,0])), labels=list(range(2,12)))
-    ax1.set_yticks(np.arange(len(policy[0,0,:])), labels=list(range(12,22)))
-    for i in range(len(range(12,22))):
-        for j in range(len(range(2,12))):
-            text = ax1.text(j, i, round(policy[i, 0, j], 2),
-                        ha="center", va="center", color="w")
-    ax1.set_title('No usable ace')
-
-    ax2.imshow(policy[:,1,:])
-    ax2.set_xlabel('Dealer')
-    ax2.set_ylabel('Player')
-    ax2.set_xticks(np.arange(len(policy[:,0,0])), labels=list(range(2,12)))
-    ax2.set_yticks(np.arange(len(policy[0,0,:])), labels=list(range(12,22)))
-    ax2.set_title('Usable ace')
-    for i in range(len(range(12,22))):
-        for j in range(len(range(2,12))):
-            text = ax2.text(j, i, round(policy[i, 1, j], 2),
-                        ha="center", va="center", color="w")
-    plt.show()
-
-    # fig, ax1 = plt.subplots()
-    # ax1.imshow(q[:,0,:, 0])
-    # ax1.set_xlabel('Dealer')
-    # ax1.set_ylabel('Player')
-    # ax1.set_xticks(np.arange(len(q[:,0,0, 0])), labels=list(range(2,12)))
-    # ax1.set_yticks(np.arange(len(q[0,0,:, 0])), labels=list(range(12,22)))
-    # for i in range(len(range(12,22))):
-    #     for j in range(len(range(2,12))):
-    #         text = ax1.text(j, i, round(q[i, 0, j, 0],2),
-    #                     ha="center", va="center", color="w")
-    # ax1.set_title('No usable ace')
-    # plt.show()
-
-    # Q
-    fig, (ax1, ax2) = plt.subplots(nrows= 1, ncols= 2)
-    ax1.imshow(q[:,0,:, 0])
-    ax1.set_xlabel('Dealer')
-    ax1.set_ylabel('Player')
-    ax1.set_xticks(np.arange(len(q[:,0,0, 0])), labels=list(range(2,12)))
-    ax1.set_yticks(np.arange(len(q[0,0,:, 0])), labels=list(range(12,22)))
-    for i in range(len(range(12,22))):
-        for j in range(len(range(2,12))):
-            text = ax1.text(j, i, round(q[i, 0, j, 0],2),
-                        ha="center", va="center", color="w")
-    ax1.set_title('No usable ace, STAY')
-
-    ax2.imshow(q[:, 0, :, 1])
-    ax2.set_xlabel('Dealer')
-    ax2.set_ylabel('Player')
-    ax2.set_xticks(np.arange(len(q[:, 0, 0, 1])), labels=list(range(2,12)))
-    ax2.set_yticks(np.arange(len(q[0, 0, :, 1])), labels=list(range(12,22)))
-    for i in range(len(range(12,22))):
-        for j in range(len(range(2,12))):
-            text = ax2.text(j, i, round(q[i, 0, j, 1],2),
-                        ha="center", va="center", color="w")
-    ax2.set_title('No usable ace, HIT')
-    plt.show()
-
-    # Count
-    fig, (ax1, ax2) = plt.subplots(nrows= 1, ncols= 2)
-    ax1.imshow(count[:,0,:, 0])
-    ax1.set_xlabel('Dealer')
-    ax1.set_ylabel('Player')
-    ax1.set_xticks(np.arange(len(count[:,0,0, 0])), labels=list(range(2,12)))
-    ax1.set_yticks(np.arange(len(count[0,0,:, 0])), labels=list(range(12,22)))
-    for i in range(len(range(12,22))):
-        for j in range(len(range(2,12))):
-            text = ax1.text(j, i, round(count[i, 0, j, 0],2),
-                        ha="center", va="center", color="w")
-    ax1.set_title('No usable ace, STAY')
-
-    ax2.imshow(count[:, 0, :, 1])
-    ax2.set_xlabel('Dealer')
-    ax2.set_ylabel('Player')
-    ax2.set_xticks(np.arange(len(count[:, 0, 0, 1])), labels=list(range(2,12)))
-    ax2.set_yticks(np.arange(len(count[0, 0, :, 1])), labels=list(range(12,22)))
-    for i in range(len(range(12,22))):
-        for j in range(len(range(2,12))):
-            text = ax2.text(j, i, round(count[i, 0, j, 1],2),
-                        ha="center", va="center", color="w")
-    ax2.set_title('No usable ace, HIT')
-    plt.show()
+    from graphs import plot_count, plot_q, plot_policy
+    plot_policy(policy)
+    plot_q(q)
+    plot_count(count)
