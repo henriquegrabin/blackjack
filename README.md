@@ -14,3 +14,12 @@ As it tries different actions, for any given state it appends the result of the 
 At the end of the episode the algorithm updates its policy by being greedy (choosing the best policy, hitting or sticking) for each state.
 
 A detailed description of Monte Carlo Exploring Starts and the algorithmic scheme can be found on page 99 second edition of the referenced book.
+
+## Random initial Policy
+![random_start](https://user-images.githubusercontent.com/25706305/165876049-49213ee5-7168-48d2-98e9-caba040a464f.png)
+
+## Policy after about 20m games
+![policy_result](https://user-images.githubusercontent.com/25706305/165876059-56bcd992-0ec1-4f25-8086-409707876f0c.png)
+
+## Q values after 20m games
+![Q](https://user-images.githubusercontent.com/25706305/165876063-c78cf97c-95f2-470a-bf6b-4bcf4f587db1.png)
