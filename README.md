@@ -16,6 +16,7 @@ At the end of the episode the algorithm updates its policy by being greedy (choo
 A detailed description of Monte Carlo Exploring Starts and the algorithmic scheme can be found on page 99 second edition of the referenced book.
 
 ## Random initial Policy
+If the policy value is zero the player is supposed to stick with her current hand, if one, to hit. <br/><br/>
 ![random_start](https://user-images.githubusercontent.com/25706305/165876049-49213ee5-7168-48d2-98e9-caba040a464f.png)
 
 ## Policy after about 20m games
